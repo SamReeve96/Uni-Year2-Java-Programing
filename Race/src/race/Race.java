@@ -35,8 +35,7 @@ public class Race {
       public void run() {
 
           for(int i = 0 ; i < 1000000000 ; i++) {
-              int x = count ;
-              count = x + 1 ;
+              count++ ;
           }
       }
   }
