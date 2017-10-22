@@ -34,18 +34,27 @@ public class SlowRace {
   class MyThread extends Thread {
 
       volatile static int count ;
+      volatile static boolean lock = false;
 
       String name ;
 
       public void run() {
-
+          
           for(int i = 0 ; i < 10 ; i++) {
               delay() ;
+              
+            while(lock) {} //Wait till lock is false
+            delay();
+            lock = true; //Claim access to critical region 
+
+              
               int x = count ;
               System.out.println("Thread " + name + " read " + x) ;
               delay() ;
               count = x + 1 ;
               System.out.println("Thread " + name + " wrote " + (x + 1)) ;
+              
+              lock = false;
           }
       }
 
