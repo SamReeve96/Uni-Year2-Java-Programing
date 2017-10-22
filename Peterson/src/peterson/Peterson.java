@@ -3,15 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package slowrace;
-
-  import java.util.concurrent.*;
+package peterson;
 
 /**
  *
  * @author Samuel
  */
-public class SlowRace {
+public class Peterson {
 
       public static void main(String args []) throws Exception {
 
@@ -19,15 +17,17 @@ public class SlowRace {
 
           MyThread thread1 = new MyThread() ;
           thread1.name = "A" ;
+          thread1.id = 0 ;
 
           MyThread thread2 = new MyThread() ;
           thread2.name = "B" ;
+          thread2.id = 1 ;
 
           thread1.start() ;
           thread2.start() ;
 
-          thread2.join() ;
           thread1.join() ;
+          thread2.join() ;
 
           System.out.println("MyThread.count = " + MyThread.count) ;
       }
@@ -36,34 +36,45 @@ public class SlowRace {
   class MyThread extends Thread {
 
       volatile static int count ;
-      //volatile static boolean lock = false;
-      
-      static Semaphore mySemaphore = new Semaphore(1);
-      
+
       String name ;
+      int id ;
 
       public void run() {
-        try {
+
           for(int i = 0 ; i < 10 ; i++) {
-              
-            //while(lock) {} //Wait till lock is false
-            delay();
-            //lock = true; //Claim access to critical region 
-            
-            mySemaphore.acquire(); // Decrease semaphore (P)
-              
+              delay() ;
+
+              beginCriticalSection() ;
+
               int x = count ;
               System.out.println("Thread " + name + " read " + x) ;
               delay() ;
               count = x + 1 ;
               System.out.println("Thread " + name + " wrote " + (x + 1)) ;
-              
-              //lock = false;
-              
-            mySemaphore.release(); //Increase semaphore (v) 
-            }
+
+              endCriticalSection() ;
           }
-        catch(Exception e) {}
+      }
+
+      // Peterson's algorithm
+
+      volatile static int turn ;
+      volatile static boolean [] interested = new boolean [2] ;
+
+      void beginCriticalSection() {
+          delay();
+          interested [id] = true ;
+          int jd = 1 - id ;
+          turn = jd ;
+          while(interested [jd] & turn == jd) {}
+          delay();
+      }
+
+      void endCriticalSection() {
+          delay();
+          interested [id] = false ;
+          delay();
       }
 
       void delay() {
