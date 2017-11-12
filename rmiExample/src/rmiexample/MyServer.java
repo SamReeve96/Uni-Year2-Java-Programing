@@ -23,8 +23,9 @@ public class MyServer extends UnicastRemoteObject implements MyRemoteInterface {
 
         MyServer server = new MyServer(); 
 
-        Registry reg = LocateRegistry.createRegistry(1996);
-        reg.bind("myrmiserver", server); 
+        Registry reg = LocateRegistry.createRegistry(1997);
+        
+        reg.bind("myrmiserver2", server); 
     }
 
     public MyServer() throws RemoteException {}
